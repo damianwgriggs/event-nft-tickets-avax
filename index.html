@@ -3,188 +3,171 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Event NFT Sale</title>
+    <title>Smoke Fest 2025 - Official NFT Mint</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js" type="application/javascript"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-    </style>
+    <style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap'); body { font-family: 'Inter', sans-serif; }</style>
 </head>
 <body class="bg-gray-900 text-white flex items-center justify-center min-h-screen p-4">
 
     <div class="w-full max-w-md mx-auto bg-gray-800 rounded-2xl shadow-lg p-8 border border-gray-700">
         
         <div class="text-center mb-6">
-            <h1 id="eventNameHeader" class="text-3xl font-bold text-cyan-400">Event Ticket Sale</h1>
-            <p class="text-gray-400 mt-2">Your NFT ticket is a unique digital collectible.</p>
+            <h1 class="text-3xl font-bold text-cyan-400">Smoke Fest 2025</h1>
+            <p class="text-gray-400 mt-2">Mint your official NFT memento.</p>
         </div>
 
-        <div id="saleInfoView" class="hidden bg-gray-700/50 rounded-lg p-4 mb-6 space-y-2 text-center">
+        <div class="bg-gray-700/50 rounded-lg p-4 mb-6 space-y-2 text-center">
             <div class="text-lg">
-                <span id="ticketsSold" class="font-bold text-2xl text-white">0</span> / 
-                <span id="maxSupply" class="text-gray-400">100</span> Sold
+                <span id="ticketsSold" class="font-bold text-2xl text-white">--</span> / 
+                <span class="text-gray-400">100</span> Minted
             </div>
             <div class="text-lg">
-                Price: <span id="ticketPrice" class="font-bold text-2xl text-cyan-400">0.0</span> AVAX
+                Price: <span class="font-bold text-2xl text-cyan-400">0.005</span> AVAX
             </div>
         </div>
         
         <div id="connectView">
-             <button id="connectButton" class="w-full bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-4 rounded-lg transition">Connect Wallet to Buy</button>
+             <button id="connectButton" class="w-full bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-4 rounded-lg transition">Connect Wallet to Mint</button>
         </div>
         
-        <div id="buyView" class="hidden">
-            <button id="buyButton" class="w-full bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-4 rounded-lg transition disabled:bg-gray-600 disabled:cursor-not-allowed">Buy Ticket</button>
+        <div id="mintView" class="hidden">
+            <button id="mintButton" class="w-full bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-4 rounded-lg transition disabled:bg-gray-600 disabled:cursor-not-allowed">Mint My NFT</button>
         </div>
 
         <div id="statusMessage" class="mt-6 text-center text-sm min-h-[20px]"></div>
     </div>
 
     <script>
-        // --- Your Contract Configuration ---
-        const contractAddress = "0xfa1FF88B70882BA8318a8A69774c5a53c6aAdf81";
-        const contractABI = [
-            {"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"approve","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[],"name":"buyTicket","outputs":[],"stateMutability":"payable","type":"function"},
-            {"inputs":[{"internalType":"address","name":"initialOwner","type":"address"},{"internalType":"string","name":"_eventName","type":"string"},{"internalType":"address payable","name":"_withdrawalWallet","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},
-            {"inputs":[{"internalType":"address","name":"sender","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"},{"internalType":"address","name":"owner","type":"address"}],"name":"ERC721IncorrectOwner","type":"error"},
-            {"inputs":[{"internalType":"address","name":"operator","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"ERC721InsufficientApproval","type":"error"},
-            {"inputs":[{"internalType":"address","name":"approver","type":"address"}],"name":"ERC721InvalidApprover","type":"error"},
-            {"inputs":[{"internalType":"address","name":"operator","type":"address"}],"name":"ERC721InvalidOperator","type":"error"},
-            {"inputs":[{"internalType":"address","name":"owner","type":"address"}],"name":"ERC721InvalidOwner","type":"error"},
-            {"inputs":[{"internalType":"address","name":"receiver","type":"address"}],"name":"ERC721InvalidReceiver","type":"error"},
-            {"inputs":[{"internalType":"address","name":"sender","type":"address"}],"name":"ERC721InvalidSender","type":"error"},
-            {"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"ERC721NonexistentToken","type":"error"},
-            {"inputs":[{"internalType":"address","name":"owner","type":"address"}],"name":"OwnableInvalidOwner","type":"error"},
-            {"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"OwnableUnauthorizedAccount","type":"error"},
-            {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"approved","type":"address"},{"indexed":true,"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"Approval","type":"event"},
-            {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"operator","type":"address"},{"indexed":false,"internalType":"bool","name":"approved","type":"bool"}],"name":"ApprovalForAll","type":"event"},
-            {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":true,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},
-            {"inputs":[],"name":"renounceOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"safeTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"},{"internalType":"bytes","name":"data","type":"bytes"}],"name":"safeTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[{"internalType":"address","name":"operator","type":"address"},{"internalType":"bool","name":"approved","type":"bool"}],"name":"setApprovalForAll","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[{"internalType":"uint256","name":"_newPrice","type":"uint256"}],"name":"setPrice","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":true,"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"Transfer","type":"event"},
-            {"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"transferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[],"name":"withdraw","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[{"internalType":"address","name":"owner","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"eventName","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"getApproved","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"operator","type":"address"}],"name":"isApprovedForAll","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"MAX_SUPPLY","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"ownerOf","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"ticketDetails","outputs":[{"internalType":"uint256","name":"timestamp","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"ticketPrice","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"tokenURI","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"withdrawalWallet","outputs":[{"internalType":"address payable","name":"","type":"address"}],"stateMutability":"view","type":"function"}
-        ];
+        // --- Final Contract Configuration ---
+        const contractAddress = "0x4d6F8FcA5Bb7208cceB4e7E88Cef8Ea68209dC91";
+        const fujiChainId = '0xa869'; // Chain ID for Avalanche Fuji Testnet
+        const ticketPriceHex = '0x11C37937E08000'; // 0.005 AVAX in wei, converted to hexadecimal
 
         // --- DOM Elements ---
         const connectButton = document.getElementById('connectButton');
-        const buyButton = document.getElementById('buyButton');
+        const mintButton = document.getElementById('mintButton');
         const connectView = document.getElementById('connectView');
-        const buyView = document.getElementById('buyView');
-        const saleInfoView = document.getElementById('saleInfoView');
+        const mintView = document.getElementById('mintView');
         const statusMessage = document.getElementById('statusMessage');
-        const eventNameHeader = document.getElementById('eventNameHeader');
         const ticketsSoldEl = document.getElementById('ticketsSold');
-        const maxSupplyEl = document.getElementById('maxSupply');
-        const ticketPriceEl = document.getElementById('ticketPrice');
         
-        let provider, signer, contract, priceInWei;
-
-        // --- Event Listeners ---
-        connectButton.addEventListener('click', connectWallet);
-        buyButton.addEventListener('click', buyTicket);
+        let currentAccount = null;
 
         // --- Core Functions ---
         async function connectWallet() {
-            if (typeof window.ethereum === 'undefined') return updateStatus('Please install MetaMask.', true);
-            
+            if (typeof window.ethereum === 'undefined') {
+                return updateStatus('Please install MetaMask.', true);
+            }
             try {
-                provider = new ethers.providers.Web3Provider(window.ethereum);
-                await provider.send("eth_requestAccounts", []);
-                signer = provider.getSigner();
-                
-                const network = await provider.getNetwork();
-                if (network.chainId !== 43113) return updateStatus('Please switch to Avalanche Fuji Testnet.', true);
+                updateStatus('Connecting wallet...', false);
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                handleAccountsChanged(accounts);
+                await checkAndSwitchNetwork();
+            } catch (error) {
+                updateStatus(`Connection failed: ${error.message || 'User rejected connection.'}`, true);
+            }
+        }
 
-                contract = new ethers.Contract(contractAddress, contractABI, signer);
-                
-                // Update the UI
+        function handleAccountsChanged(accounts) {
+            if (accounts.length === 0) {
+                currentAccount = null;
+                connectView.classList.remove('hidden');
+                mintView.classList.add('hidden');
+                updateStatus('Wallet disconnected.', true);
+            } else if (accounts[0] !== currentAccount) {
+                currentAccount = accounts[0];
                 connectView.classList.add('hidden');
-                buyView.classList.remove('hidden');
-                updateStatus('Wallet connected. Ready to buy.', false);
-
-                await displaySaleInfo();
-                
-            } catch (error) {
-                updateStatus(`Connection failed: ${error.message}`, true);
+                mintView.classList.remove('hidden');
+                updateStatus('Wallet connected. Ready to mint.', false);
+                updateSoldCount();
             }
         }
 
-        async function displaySaleInfo() {
-            try {
-                // Use a read-only provider if the wallet is not connected yet
-                const currentProvider = provider || new ethers.providers.JsonRpcProvider('https://api.avax-test.network/ext/bc/C/rpc');
-                const readOnlyContract = new ethers.Contract(contractAddress, contractABI, currentProvider);
-                
-                const [name, price, sold, max] = await Promise.all([
-                    readOnlyContract.eventName(),
-                    readOnlyContract.ticketPrice(),
-                    readOnlyContract.totalSupply(),
-                    readOnlyContract.MAX_SUPPLY()
-                ]);
-
-                priceInWei = price; // Store the price in Wei for the buy function
-                eventNameHeader.textContent = name;
-                ticketPriceEl.textContent = ethers.utils.formatEther(price);
-                ticketsSoldEl.textContent = sold.toString();
-                maxSupplyEl.textContent = max.toString();
-
-                if (sold.eq(max)) {
-                    buyButton.disabled = true;
-                    buyButton.textContent = "Sold Out";
+        async function checkAndSwitchNetwork() {
+            const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+            if (chainId !== fujiChainId) {
+                updateStatus('Please switch to Avalanche Fuji Testnet.', true);
+                try {
+                    await window.ethereum.request({
+                        method: 'wallet_switchEthereumChain',
+                        params: [{ chainId: fujiChainId }],
+                    });
+                } catch (switchError) {
+                    updateStatus('Failed to switch network.', true);
                 }
-
-                saleInfoView.classList.remove('hidden');
-            } catch (error) {
-                console.error("Could not fetch sale info:", error);
-                updateStatus("Could not load sale details. Check contract address.", true);
             }
         }
 
-        async function buyTicket() {
-            if (!contract || !priceInWei) return;
+        async function updateSoldCount() {
+            try {
+                // To read from the contract, we use 'eth_call'.
+                // 'data' is the first 4 bytes of the hash of the function signature.
+                // For 'totalSupply()', this is 0x18160ddd.
+                const hexResult = await window.ethereum.request({
+                    method: 'eth_call',
+                    params: [{
+                        to: contractAddress,
+                        data: '0x18160ddd'
+                    }, 'latest']
+                });
+                
+                const soldCount = parseInt(hexResult, 16);
+                ticketsSoldEl.textContent = soldCount;
 
+                if (soldCount >= 100) {
+                    mintButton.disabled = true;
+                    mintButton.textContent = "Sold Out";
+                }
+            } catch (error) {
+                console.error("Could not fetch total supply:", error);
+                updateStatus("Could not load mint count.", true);
+            }
+        }
+
+        async function mintNFT() {
             setLoadingState(true);
             try {
-                updateStatus('Please confirm the transaction in MetaMask...', false);
-                // The {value: priceInWei} part is crucial - it sends AVAX with the transaction.
-                const tx = await contract.buyTicket({ value: priceInWei });
+                updateStatus('Please confirm transaction in MetaMask...', false);
                 
-                updateStatus(`Purchase in progress... <a href="https://testnet.snowtrace.io/tx/${tx.hash}" target="_blank" class="text-cyan-400 underline">View on Snowtrace</a>`, false);
-                
-                await tx.wait(); // Wait for the transaction to be confirmed
+                const txParams = {
+                    from: currentAccount,
+                    to: contractAddress,
+                    value: ticketPriceHex,
+                    // 'data' for 'mintTicket()' function call is 0xf04f58c6
+                    data: '0xf04f58c6' 
+                };
 
-                updateStatus(`Success! You've got your ticket. <a href="https://testnet.snowtrace.io/tx/${tx.hash}" target="_blank" class="text-cyan-400 underline">View Transaction</a>`, false);
-                await displaySaleInfo(); // Refresh info after purchase
+                const txHash = await window.ethereum.request({
+                    method: 'eth_sendTransaction',
+                    params: [txParams],
+                });
+
+                updateStatus(`Minting in progress... <a href="https://testnet.snowtrace.io/tx/${txHash}" target="_blank" class="text-cyan-400 underline">View Transaction</a>`, false);
+                
+                await waitForTransaction(txHash);
+                updateStatus(`Success! NFT Minted. <a href="https://testnet.snowtrace.io/tx/${txHash}" target="_blank" class="text-cyan-400 underline">View Transaction</a>`, false);
+                await updateSoldCount();
 
             } catch (error) {
-                console.error("Purchase failed:", error);
-                const errorMessage = error.reason || "An unknown error occurred.";
-                updateStatus(`Purchase failed: ${errorMessage}`, true);
+                updateStatus(`Error: ${error.message || "Transaction failed."}`, true);
             } finally {
                 setLoadingState(false);
             }
+        }
+
+        function waitForTransaction(txHash) {
+            return new Promise((resolve) => {
+                const interval = setInterval(async () => {
+                    const receipt = await window.ethereum.request({
+                        method: 'eth_getTransactionReceipt',
+                        params: [txHash],
+                    });
+                    if (receipt) {
+                        clearInterval(interval);
+                        resolve(receipt);
+                    }
+                }, 2000);
+            });
         }
         
         // --- UI Helper Functions ---
@@ -194,17 +177,20 @@
         }
         
         function setLoadingState(isLoading) {
-             buyButton.disabled = isLoading;
-             if (isLoading) {
-                buyButton.textContent = 'Processing...';
-            } else {
-                buyButton.textContent = 'Buy Ticket';
-            }
+             mintButton.disabled = isLoading;
+             mintButton.textContent = isLoading ? 'Processing...' : 'Mint My NFT';
         }
         
-        // Load sale info as soon as the page loads
-        displaySaleInfo();
-
+        // --- Event Listeners & Initial Load ---
+        if (typeof window.ethereum !== 'undefined') {
+            window.ethereum.on('accountsChanged', handleAccountsChanged);
+        }
+        
+        connectButton.addEventListener('click', connectWallet);
+        mintButton.addEventListener('click', mintNFT);
+        
+        updateSoldCount(); // Load mint count on page load
     </script>
 </body>
 </html>
+
