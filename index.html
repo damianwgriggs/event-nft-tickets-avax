@@ -3,193 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smoke Fest 2025 - Official NFT Mint</title>
+    <title>Smoke Fest 2025 - Official NFT Collection</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap'); body { font-family: 'Inter', sans-serif; }</style>
 </head>
 <body class="bg-gray-900 text-white flex items-center justify-center min-h-screen p-4">
 
-    <div class="w-full max-w-md mx-auto bg-gray-800 rounded-2xl shadow-lg p-8 border border-gray-700">
+    <div class="w-full max-w-lg mx-auto bg-gray-800 rounded-2xl shadow-lg p-8 border border-gray-700 text-center">
         
-        <div class="text-center mb-6">
-            <h1 class="text-3xl font-bold text-cyan-400">Smoke Fest 2025</h1>
-            <p class="text-gray-400 mt-2">Mint your official NFT memento.</p>
+        <div class="mb-6">
+            <!-- You can replace this SVG with an <img> tag for your event logo -->
+            <div class="w-24 h-24 bg-cyan-900/50 rounded-full mx-auto flex items-center justify-center border-2 border-cyan-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                </svg>
+            </div>
+            <h1 class="text-3xl font-bold text-cyan-400 mt-4">Smoke Fest 2025</h1>
+            <p class="text-gray-400 mt-2">Official Digital Memento Collection</p>
         </div>
 
-        <div class="bg-gray-700/50 rounded-lg p-4 mb-6 space-y-2 text-center">
-            <div class="text-lg">
-                <span id="ticketsSold" class="font-bold text-2xl text-white">--</span> / 
-                <span class="text-gray-400">100</span> Minted
-            </div>
-            <div class="text-lg">
-                Price: <span class="font-bold text-2xl text-cyan-400">0.005</span> AVAX
-            </div>
-        </div>
-        
-        <div id="connectView">
-             <button id="connectButton" class="w-full bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-4 rounded-lg transition">Connect Wallet to Mint</button>
-        </div>
-        
-        <div id="mintView" class="hidden">
-            <button id="mintButton" class="w-full bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-4 rounded-lg transition disabled:bg-gray-600 disabled:cursor-not-allowed">Mint My NFT</button>
+        <div class="bg-gray-700/50 rounded-lg p-4 mb-6">
+            <p class="text-lg">
+                A limited collection of <span class="font-bold text-white">100 unique NFT mementos</span> have been minted to commemorate the Smoke Fest 2025 event.
+            </p>
         </div>
 
-        <div id="statusMessage" class="mt-6 text-center text-sm min-h-[20px]"></div>
+        <div class="space-y-4">
+            <a id="marketplaceLink" href="#" class="block w-full bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-4 rounded-lg transition">
+                View & Buy on OpenSea
+            </a>
+            <a id="contractLink" href="#" target="_blank" class="block w-full bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-lg transition">
+                Verify on Block Explorer
+            </a>
+        </div>
+
+        <div class="mt-6 text-center text-sm min-h-[20px] text-gray-500">
+            This page verifies the authenticity of the collection.
+        </div>
     </div>
 
     <script>
-        // --- Final Contract Configuration ---
-        const contractAddress = "0x4d6F8FcA5Bb7208cceB4e7E88Cef8Ea68209dC91";
-        const fujiChainId = '0xa869'; // Chain ID for Avalanche Fuji Testnet
-        const ticketPriceHex = '0x11C37937E08000'; // 0.005 AVAX in wei, converted to hexadecimal
-
-        // --- DOM Elements ---
-        const connectButton = document.getElementById('connectButton');
-        const mintButton = document.getElementById('mintButton');
-        const connectView = document.getElementById('connectView');
-        const mintView = document.getElementById('mintView');
-        const statusMessage = document.getElementById('statusMessage');
-        const ticketsSoldEl = document.getElementById('ticketsSold');
+        // --- CONFIGURATION ---
+        const contractAddress = "0xCd561092eB8ebE3e9f73E7c60e94008C0c23911F";
         
-        let currentAccount = null;
-
-        // --- Core Functions ---
-        async function connectWallet() {
-            if (typeof window.ethereum === 'undefined') {
-                return updateStatus('Please install MetaMask.', true);
-            }
-            try {
-                updateStatus('Connecting wallet...', false);
-                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                handleAccountsChanged(accounts);
-                await checkAndSwitchNetwork();
-            } catch (error) {
-                updateStatus(`Connection failed: ${error.message || 'User rejected connection.'}`, true);
-            }
-        }
-
-        function handleAccountsChanged(accounts) {
-            if (accounts.length === 0) {
-                currentAccount = null;
-                connectView.classList.remove('hidden');
-                mintView.classList.add('hidden');
-                updateStatus('Wallet disconnected.', true);
-            } else if (accounts[0] !== currentAccount) {
-                currentAccount = accounts[0];
-                connectView.classList.add('hidden');
-                mintView.classList.remove('hidden');
-                updateStatus('Wallet connected. Ready to mint.', false);
-                updateSoldCount();
-            }
-        }
-
-        async function checkAndSwitchNetwork() {
-            const chainId = await window.ethereum.request({ method: 'eth_chainId' });
-            if (chainId !== fujiChainId) {
-                updateStatus('Please switch to Avalanche Fuji Testnet.', true);
-                try {
-                    await window.ethereum.request({
-                        method: 'wallet_switchEthereumChain',
-                        params: [{ chainId: fujiChainId }],
-                    });
-                } catch (switchError) {
-                    updateStatus('Failed to switch network.', true);
-                }
-            }
-        }
-
-        async function updateSoldCount() {
-            try {
-                // To read from the contract, we use 'eth_call'.
-                // 'data' is the first 4 bytes of the hash of the function signature.
-                // For 'totalSupply()', this is 0x18160ddd.
-                const hexResult = await window.ethereum.request({
-                    method: 'eth_call',
-                    params: [{
-                        to: contractAddress,
-                        data: '0x18160ddd'
-                    }, 'latest']
-                });
-                
-                const soldCount = parseInt(hexResult, 16);
-                ticketsSoldEl.textContent = soldCount;
-
-                if (soldCount >= 100) {
-                    mintButton.disabled = true;
-                    mintButton.textContent = "Sold Out";
-                }
-            } catch (error) {
-                console.error("Could not fetch total supply:", error);
-                updateStatus("Could not load mint count.", true);
-            }
-        }
-
-        async function mintNFT() {
-            setLoadingState(true);
-            try {
-                updateStatus('Please confirm transaction in MetaMask...', false);
-                
-                const txParams = {
-                    from: currentAccount,
-                    to: contractAddress,
-                    value: ticketPriceHex,
-                    // 'data' for 'mintTicket()' function call is 0xf04f58c6
-                    data: '0xf04f58c6' 
-                };
-
-                const txHash = await window.ethereum.request({
-                    method: 'eth_sendTransaction',
-                    params: [txParams],
-                });
-
-                updateStatus(`Minting in progress... <a href="https://testnet.snowtrace.io/tx/${txHash}" target="_blank" class="text-cyan-400 underline">View Transaction</a>`, false);
-                
-                await waitForTransaction(txHash);
-                updateStatus(`Success! NFT Minted. <a href="https://testnet.snowtrace.io/tx/${txHash}" target="_blank" class="text-cyan-400 underline">View Transaction</a>`, false);
-                await updateSoldCount();
-
-            } catch (error) {
-                updateStatus(`Error: ${error.message || "Transaction failed."}`, true);
-            } finally {
-                setLoadingState(false);
-            }
-        }
-
-        function waitForTransaction(txHash) {
-            return new Promise((resolve) => {
-                const interval = setInterval(async () => {
-                    const receipt = await window.ethereum.request({
-                        method: 'eth_getTransactionReceipt',
-                        params: [txHash],
-                    });
-                    if (receipt) {
-                        clearInterval(interval);
-                        resolve(receipt);
-                    }
-                }, 2000);
-            });
-        }
+        // --- Links ---
+        const contractLinkEl = document.getElementById('contractLink');
+        const marketplaceLinkEl = document.getElementById('marketplaceLink');
         
-        // --- UI Helper Functions ---
-        function updateStatus(message, isError) {
-            statusMessage.innerHTML = message;
-            statusMessage.className = `mt-6 text-center text-sm min-h-[20px] ${isError ? 'text-red-400' : 'text-gray-400'}`;
-        }
+        // This link is automatically generated for the Fuji block explorer.
+        const snowtraceUrl = `https://testnet.snowtrace.io/address/${contractAddress}`;
         
-        function setLoadingState(isLoading) {
-             mintButton.disabled = isLoading;
-             mintButton.textContent = isLoading ? 'Processing...' : 'Mint My NFT';
-        }
-        
-        // --- Event Listeners & Initial Load ---
-        if (typeof window.ethereum !== 'undefined') {
-            window.ethereum.on('accountsChanged', handleAccountsChanged);
-        }
-        
-        connectButton.addEventListener('click', connectWallet);
-        mintButton.addEventListener('click', mintNFT);
-        
-        updateSoldCount(); // Load mint count on page load
+        // --- ACTION REQUIRED ---
+        // 1. Create a collection on testnets.opensea.io for your contract address.
+        // 2. OpenSea will give you a collection name/slug (e.g., "smoke-fest-2025-official").
+        // 3. Replace the placeholder below with your actual collection name.
+        const openSeaCollectionSlug = "YOUR-COLLECTION-SLUG-HERE"; 
+        const marketplaceUrl = `https://testnets.opensea.io/collection/${openSeaCollectionSlug}`; 
+
+        // Set the final links on the buttons
+        contractLinkEl.href = snowtraceUrl;
+        marketplaceLinkEl.href = marketplaceUrl;
     </script>
 </body>
 </html>
