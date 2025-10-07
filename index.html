@@ -12,7 +12,7 @@
     <div class="w-full max-w-lg mx-auto bg-gray-800 rounded-2xl shadow-lg p-8 border border-gray-700 text-center">
         
         <div class="mb-6">
-            <!-- You can replace this SVG with an <img> tag for your event logo -->
+            <!-- You can replace this with an <img> tag for your event logo -->
             <div class="w-24 h-24 bg-cyan-900/50 rounded-full mx-auto flex items-center justify-center border-2 border-cyan-500">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
@@ -24,16 +24,14 @@
 
         <div class="bg-gray-700/50 rounded-lg p-4 mb-6">
             <p class="text-lg">
-                A limited collection of <span class="font-bold text-white">100 unique NFT mementos</span> have been minted to commemorate the Smoke Fest 2025 event.
+                A limited collection of <span class="font-bold text-white">100 unique NFT mementos</span> are available for purchase exclusively on OpenSea.
             </p>
         </div>
 
         <div class="space-y-4">
-            <a id="marketplaceLink" href="#" class="block w-full bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-4 rounded-lg transition">
+            <!-- This is the only link you need to update -->
+            <a id="marketplaceLink" href="YOUR_OPENSEA_COLLECTION_LINK_HERE" target="_blank" class="block w-full bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-4 rounded-lg transition">
                 View & Buy on OpenSea
-            </a>
-            <a id="contractLink" href="#" target="_blank" class="block w-full bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-lg transition">
-                Verify on Block Explorer
             </a>
         </div>
 
@@ -42,28 +40,6 @@
         </div>
     </div>
 
-    <script>
-        // --- CONFIGURATION ---
-        const contractAddress = "0xCd561092eB8ebE3e9f73E7c60e94008C0c23911F";
-        
-        // --- Links ---
-        const contractLinkEl = document.getElementById('contractLink');
-        const marketplaceLinkEl = document.getElementById('marketplaceLink');
-        
-        // This link is automatically generated for the Fuji block explorer.
-        const snowtraceUrl = `https://testnet.snowtrace.io/address/${contractAddress}`;
-        
-        // --- ACTION REQUIRED ---
-        // 1. Create a collection on testnets.opensea.io for your contract address.
-        // 2. OpenSea will give you a collection name/slug (e.g., "smoke-fest-2025-official").
-        // 3. Replace the placeholder below with your actual collection name.
-        const openSeaCollectionSlug = "YOUR-COLLECTION-SLUG-HERE"; 
-        const marketplaceUrl = `https://testnets.opensea.io/collection/${openSeaCollectionSlug}`; 
-
-        // Set the final links on the buttons
-        contractLinkEl.href = snowtraceUrl;
-        marketplaceLinkEl.href = marketplaceUrl;
-    </script>
 </body>
 </html>
 
